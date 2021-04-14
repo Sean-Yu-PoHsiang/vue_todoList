@@ -9,18 +9,62 @@
         v-model.trim="newTodo"
         :disabled="inputBlocked"
       />
-      <span v-show="inputBlocked"
-        >You can add new todo after {{ timer }} sec</span
-      >
+      <div class="message-board">
+        <span v-show="inputBlocked"
+          >You can add new todo after {{ timer }} sec</span
+        >
+      </div>
     </form>
-    <h5>double click to edit</h5>
+    <div class="filter-panel">
+      <div class="filter-item">
+        <input
+          @click="setFilterKey(`all`)"
+          class="filter-radio"
+          type="radio"
+          name="filter"
+          id="filter-all"
+          :checked="filterKey === `all`"
+        />
+        <label class="filter-label" for="filter-all"
+          >all *{{ todos.length }}</label
+        >
+      </div>
+      <div class="filter-item">
+        <input
+          @click="setFilterKey(`unfinish`)"
+          class="filter-radio"
+          type="radio"
+          name="filter"
+          id="filter-unfinish"
+          :checked="filterKey === `unfinish`"
+        />
+        <label class="filter-label" for="filter-unfinish"
+          >unfinish *{{ unfinishCount }}</label
+        >
+      </div>
+      <div class="filter-item">
+        <input
+          @click="setFilterKey(`finished`)"
+          class="filter-radio"
+          type="radio"
+          name="filter"
+          id="filter-finished"
+          :checked="filterKey === `finished`"
+        />
+        <label class="filter-label" for="filter-finished"
+          >finished *{{ finishedCount }}</label
+        >
+      </div>
+    </div>
+    <h5 class="filter-title">double click to edit</h5>
     <ul>
-      <li class="todo-item" v-for="todo in todos" :key="todo.id">
+      <li class="todo-item" v-for="todo in filteredTodos" :key="todo.id">
         <div class="item-box" :class="{ dNone: editingTodo.id === todo.id }">
           <input
             class="todo-checkbox"
             type="checkbox"
             @click="toggleIsDone(todo.id)"
+            :checked="todo.isDone"
           />
           <span @dblclick="editTodo(todo)" class="todo-content">{{
             todo.content
@@ -30,7 +74,7 @@
           </button>
         </div>
         <input
-          @keyup.enter="editDone(editingContent)"
+          @keyup.enter="editDone"
           @blur="cancelEdit"
           v-todo-focus="todo.id === editingTodo.id"
           class="todo-modifier"
@@ -49,18 +93,46 @@ import { mapState, mapMutations, mapActions } from "vuex";
 export default {
   name: "TodoList",
   data() {
-    return {
-      editingContent: "",
-    };
+    return {};
   },
   computed: {
-    ...mapState(["todos", "inputBlocked", "timer", "editingTodo"]),
+    ...mapState([
+      //mapState
+      "todos",
+      "inputBlocked",
+      "timer",
+      "editingTodo",
+      "filterKey",
+    ]),
+    filteredTodos() {
+      if (this.filterKey == "finished") {
+        return this.$store.state.todos.filter((el) => el.isDone);
+      } else if (this.filterKey === "unfinish") {
+        return this.$store.state.todos.filter((el) => !el.isDone);
+      } else {
+        return this.$store.state.todos;
+      }
+    },
+    unfinishCount() {
+      return this.$store.state.todos.filter((el) => !el.isDone).length;
+    },
+    finishedCount() {
+      return this.$store.state.todos.filter((el) => el.isDone).length;
+    },
     newTodo: {
       get() {
         return this.$store.state.newTodo;
       },
       set(value) {
         this.$store.commit("updateNewTodo", value);
+      },
+    },
+    editingContent: {
+      get() {
+        return this.$store.state.editingContent;
+      },
+      set(value) {
+        this.$store.commit("updateEditingContent", value);
       },
     },
   },
@@ -71,6 +143,7 @@ export default {
       "editTodo",
       "cancelEdit",
       "editDone",
+      "setFilterKey",
     ]),
     ...mapActions(["addTodoPackage"]),
   },
@@ -97,6 +170,13 @@ export default {
 .new-todo-form {
   width: 100%;
 }
+.message-board {
+  height: 20px;
+  margin: 8px 0 16px 0;
+}
+.filter-title {
+  margin: 16px 0 0 0;
+}
 ul {
   display: block;
   padding: 0;
@@ -113,7 +193,6 @@ ul {
 .todo-content {
   flex-grow: 1;
   text-align: start;
-  // margin-right: auto;
 }
 .delete-btn {
   border: 0;
@@ -124,5 +203,19 @@ ul {
 }
 .dNone {
   display: none;
+}
+.filter-panel {
+  display: flex;
+  align-items: center;
+}
+.filter-item {
+  display: flex;
+  align-items: center;
+}
+.filter-label {
+  padding-left: 4px;
+}
+.filter-radio {
+  margin: 0 0 0 10px;
 }
 </style>

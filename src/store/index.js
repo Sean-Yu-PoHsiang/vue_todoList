@@ -13,13 +13,14 @@ export default new Vuex.Store({
     inputBlocked: false,
     timer: 0,
     blockingTime: 5,
+    filterKey: "all",
   },
   mutations: {
     updateNewTodo(state, newTodo) {
       state.newTodo = newTodo;
     },
-    updateEditContent(state, value) {
-      state.updateEditContent = value;
+    updateEditingContent(state, value) {
+      state.editingContent = value;
     },
     addTodo(state) {
       if (!state.newTodo) {
@@ -46,20 +47,18 @@ export default new Vuex.Store({
     },
     editTodo(state, todo) {
       state.editingTodo = todo;
+      state.editingContent = todo.content;
     },
     cancelEdit(state) {
-      state.editingTodo = {
-        id: 0,
-        content: "",
-        isDone: false,
-      };
+      state.editingTodo = {};
+      state.editingContent = "";
     },
-    editDone(state, editingContent) {
+    editDone(state) {
       state.todos = state.todos.map((el) => {
         if (el.id === state.editingTodo.id) {
           return {
             ...state.editingTodo,
-            content: editingContent,
+            content: state.editingContent,
           };
         } else {
           return el;
@@ -77,6 +76,9 @@ export default new Vuex.Store({
           state.timer = arr[i] + 1;
         }, i * 1000);
       }
+    },
+    setFilterKey(state, value) {
+      state.filterKey = value;
     },
   },
   actions: {
