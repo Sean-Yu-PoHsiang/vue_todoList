@@ -39,7 +39,7 @@
           :checked="filterKey === `unfinish`"
         />
         <label class="filter-label" for="filter-unfinish"
-          >unfinish *{{ unfinishCount }}</label
+          >unfinish *{{ unfinishCount || 0 }}</label
         >
       </div>
       <div class="filter-item">
@@ -52,7 +52,7 @@
           :checked="filterKey === `finished`"
         />
         <label class="filter-label" for="filter-finished"
-          >finished *{{ finishedCount }}</label
+          >finished *{{ finishedCount || 0 }}</label
         >
       </div>
     </div>
