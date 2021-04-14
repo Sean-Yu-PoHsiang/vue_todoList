@@ -80,6 +80,12 @@ export default new Vuex.Store({
     setFilterKey(state, value) {
       state.filterKey = value;
     },
+    saveLocalStorage(state) {
+      localStorage.setItem("todoList", JSON.stringify(state.todos));
+    },
+    fetchLocalStorage(state) {
+      state.todos = JSON.parse(localStorage.getItem("todoList"));
+    },
   },
   actions: {
     addTodoPackage({ commit }) {

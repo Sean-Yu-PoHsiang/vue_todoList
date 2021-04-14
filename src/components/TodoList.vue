@@ -26,7 +26,7 @@
           :checked="filterKey === `all`"
         />
         <label class="filter-label" for="filter-all"
-          >all *{{ todos.length }}</label
+          >all *{{ todos.length || 0 }}</label
         >
       </div>
       <div class="filter-item">
@@ -95,6 +95,17 @@ export default {
   data() {
     return {};
   },
+  created() {
+    this.fetchLocalStorage();
+  },
+  watch: {
+    todos: {
+      handler() {
+        this.saveLocalStorage();
+      },
+      deep: true,
+    },
+  },
   computed: {
     ...mapState([
       //mapState
@@ -114,10 +125,10 @@ export default {
       }
     },
     unfinishCount() {
-      return this.$store.state.todos.filter((el) => !el.isDone).length;
+      return this.$store.state.todos.filter((el) => !el.isDone).length || 0;
     },
     finishedCount() {
-      return this.$store.state.todos.filter((el) => el.isDone).length;
+      return this.$store.state.todos.filter((el) => el.isDone).length || 0;
     },
     newTodo: {
       get() {
@@ -144,6 +155,8 @@ export default {
       "cancelEdit",
       "editDone",
       "setFilterKey",
+      "fetchLocalStorage",
+      "saveLocalStorage",
     ]),
     ...mapActions(["addTodoPackage"]),
   },
